@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>회원 수첩 로그인</title>
+    <title>회원 수첩</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
             text-align: center;
             padding: 20px;
         }
@@ -19,31 +18,6 @@
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .login-title {
-            font-size: 1.8em;
-            font-weight: bold;
-            margin: 0;
-            color: #333;
-        }
-        .login-subtitle {
-            font-size: 1.2em;
-            margin: 5px 0 20px 0;
-            color: #555;
-        }
-        input {
-            padding: 8px;
-            width: 150px;
-            margin: 10px 0;
-            text-align: center;
-        }
-        button {
-            padding: 8px 12px;
-            cursor: pointer;
-            border: none;
-            background-color: #007bff;
-            color: white;
-            border-radius: 5px;
-        }
         .container {
             display: none;
             flex-wrap: wrap;
@@ -51,21 +25,19 @@
         }
         .card {
             background: white;
-            width: 500px; /* 5:3 비율 유지 */
+            width: 500px; 
             height: 300px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
             margin: 10px;
             padding: 15px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: left;
-            overflow: hidden;
         }
         .photo-container {
             flex: 1;
-            min-width: 40%; /* 사진 비율 조정 */
+            min-width: 40%;
             height: 100%;
             display: flex;
             justify-content: center;
@@ -100,52 +72,41 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
-        /* 🔹 반응형 디자인: 화면 크기에 맞게 사진과 텍스트 자동 조정 */
-        @media screen and (max-width: 600px) {
-            .card {
-                flex-direction: column;
-                max-width: 90%;
-                height: auto;
-            }
-            .photo-container {
-                max-width: 100%;
-                height: auto;
-            }
-            .photo-container img {
-                width: 100%;
-                height: auto;
-            }
-            .info {
-                padding-left: 0;
-                text-align: center;
-            }
-            .info h3 {
-                font-size: 1.1em;
-            }
-            .info p {
-                font-size: 0.8em;
-            }
-        }
     </style>
 </head>
 <body>
 
     <!-- 로그인 화면 -->
     <div id="loginPage" class="login-container">
-        <h1 class="login-title">형제회</h1>
-        <h2 class="login-subtitle">회원 인증</h2>
+        <h1>형제회</h1>
+        <h2>회원 인증</h2>
         <p>연락처의 마지막 4자리 입력</p>
         <input type="text" id="contactInput" placeholder="예: 5678" maxlength="4">
         <button onclick="authenticateUser()">로그인</button>
     </div>
 
-    <!-- 회원 목록 페이지 -->
+    <!-- 회원 추가 폼 -->
+    <div id="addMemberForm" class="login-container" style="display: none;">
+        <h2>회원 추가</h2>
+        <input type="text" id="name" placeholder="이름" required>
+        <input type="text" id="company" placeholder="회사">
+        <input type="text" id="position" placeholder="직책">
+        <input type="text" id="officeAddress" placeholder="회사 주소">
+        <input type="text" id="homeAddress" placeholder="집 주소">
+        <input type="text" id="contact" placeholder="연락처" required>
+        <input type="email" id="email" placeholder="이메일">
+        <label>사진 업로드:</label>
+        <input type="file" id="photo" accept="image/*">
+        <button onclick="addMember()">회원 추가</button>
+        <p id="statusMessage"></p>
+    </div>
+
+    <!-- 회원 목록 -->
     <div id="members" class="container"></div>
 
     <script>
-        let membersData = [];
-        let apiUrl = "https://script.google.com/macros/s/AKfycbwbLFVumKun9Nu6_RbESoH6MXvTwAPBoBVAZ94p1ihYfu-3Zh1Q48lUYMfcHLUiUrFt/exec"; // Google Apps Script 배포 URL
+        let apiUrl = "https://script.google.com/macros/s/AKfycbwbLFVumKun9Nu6_RbESoH6MXvTwAPBoBVAZ94p1ihYfu-3Zh1Q48lUYMfcHLUiUrFt/exec"; // 회원 인증 및 목록 가져오기
+        let apiUrlAddMember = "https://script.google.com/macros/s/AKfycbzPFzlALhGyykS3CKknWjd2UQLutPafvrbXEQk9_6DA1BWebea6WrW-cl-DmDLAA_Rd/exec"; // 회원 추가 및 사진 업로드
 
         function checkAuthentication() {
             let storedContact = localStorage.getItem("authenticatedContact");
@@ -172,9 +133,9 @@
                 } else {
                     membersData = data;
                     document.getElementById('loginPage').style.display = "none";
+                    document.getElementById('addMemberForm').style.display = "block";
                     document.getElementById('members').style.display = "flex";
                     displayMembers(membersData);
-
                     if (!isAutoLogin) {
                         localStorage.setItem("authenticatedContact", contact);
                     }
@@ -210,6 +171,45 @@
                     </div>
                 `;
                 container.appendChild(card);
+            });
+        }
+
+        function addMember() {
+            let name = document.getElementById("name").value.trim();
+            let contact = document.getElementById("contact").value.trim();
+            let photoFile = document.getElementById("photo").files[0];
+
+            if (!name || !contact) {
+                document.getElementById("statusMessage").innerText = "이름과 연락처는 필수 입력 사항입니다.";
+                return;
+            }
+
+            let reader = new FileReader();
+            if (photoFile) {
+                reader.readAsDataURL(photoFile);
+                reader.onload = function () {
+                    let base64Photo = reader.result.split(",")[1];
+                    sendData(name, contact, base64Photo);
+                };
+            } else {
+                sendData(name, contact, null);
+            }
+        }
+
+        function sendData(name, contact, photo) {
+            let memberData = { name: name, contact: contact, photo: photo };
+
+            fetch(apiUrlAddMember, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(memberData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("statusMessage").innerText = data.message;
+            })
+            .catch(error => {
+                document.getElementById("statusMessage").innerText = "오류 발생: " + error.message;
             });
         }
 
