@@ -37,10 +37,6 @@
             text-align: left;
             position: relative;
         }
-        .photo-container {
-            flex: 0 0 90px;
-            margin-right: 15px;
-        }
         .photo-container img {
             width: 90px;
             height: 90px;
@@ -117,7 +113,7 @@
     <div id="members" class="container"></div>
 
     <!-- 수정 팝업 -->
-        <div id="editPopup" class="popup">
+    <div id="editPopup" class="popup">
         <h2>회원 정보 수정</h2>
         <input type="text" id="editName" placeholder="이름" disabled>
         <input type="text" id="editCompany" placeholder="회사">
@@ -176,7 +172,6 @@
                     </div>
                     <div class="info">
                         <h3>${member.name || "이름 없음"}</h3>
-                        <div class="divider"></div>
                         <p class="bold-text">${member.company && member.position ? `${member.company} | ${member.position}` : "정보 없음"}</p>
                         <p class="bold-text">📞 ${member.contact || "연락처 없음"}</p>
                         <p class="address">🏢 ${member.officeAddress || "회사 주소 없음"}</p>
@@ -188,81 +183,29 @@
             });
         }
 
-        function editMember(name, company, position, officeAddress, homeAddress, contact) {
-            currentContact = contact;
-            document.getElementById('editName').value = name;
-            document.getElementById('editCompany').value = company;
-            document.getElementById('editPosition').value = position;
-            document.getElementById('editOfficeAddress').value = officeAddress;
-            document.getElementById('editHomeAddress').value = homeAddress;
-            document.getElementById('editContact').value = contact;
-            document.getElementById('editPopup').style.display = "block";
-        }
-
         function saveChanges() {
-            document.getElementById('editPopup').style.display = "none";
-            toggleEditMode(); // 수정 버튼 숨김
+            let contact = document.getElementById('editContact').value;
+            let company = document.getElementById('editCompany').value;
+            let position = document.getElementById('editPosition').value;
+            let officeAddress = document.getElementById('editOfficeAddress').value;
+            let homeAddress = document.getElementById('editHomeAddress').value;
+
+            let updatedData = { contact, company, position, officeAddress, homeAddress };
 
             fetch(apiUrlUpdate, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ contact: currentContact })
-            }).then(response => response.json())
-            .then(data => {
-                alert("회원 정보가 수정되었습니다.");
-                location.reload(); // 수정 후 새로고침
-            }).catch(error => console.error("수정 오류:", error));
-        }
-   
-        function saveChanges() {
-            let contactInput = document.getElementById('editContact');
-            if (!contactInput) {
-                console.error("🚨 오류: 'editContact' 요소를 찾을 수 없습니다.");
-                alert("⚠️ 시스템 오류: 회원 정보를 찾을 수 없습니다.");
-                return;
-            }
-
-            let contact = contactInput.value;
-            let company = document.getElementById('editCompany')?.value || "";
-            let position = document.getElementById('editPosition')?.value || "";
-            let officeAddress = document.getElementById('editOfficeAddress')?.value || "";
-            let homeAddress = document.getElementById('editHomeAddress')?.value || "";
-            let email = document.getElementById('editEmail')?.value || "";
-
-            let updatedData = {
-                contact: contact,
-                company: company,
-                position: position,
-                officeAddress: officeAddress,
-                homeAddress: homeAddress,
-                email: email
-            };
-
-            console.log("🔹 수정 요청 데이터:", updatedData);
-
-            fetch(apiUrlUpdate, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+                mode: "cors",
                 body: JSON.stringify(updatedData)
             })
             .then(response => response.json())
             .then(data => {
-                console.log("🔹 응답 데이터:", data);
-                if (data.status === "success") {
-                    alert("✅ 회원 정보가 수정되었습니다.");
-                    document.getElementById('editPopup').style.display = "none"; // 팝업 닫기
-                    toggleEditMode(); // 수정 버튼 숨기기
-                    location.reload(); // 새로고침
-                } else {
-                    alert("⚠️ 오류 발생: " + data.message);
-                }
+                alert("✅ 회원 정보가 수정되었습니다.");
+                document.getElementById('editPopup').style.display = "none";
+                location.reload();
             })
-            .catch(error => {
-                console.error("🚨 저장 오류:", error);
-                alert("⚠️ 저장 중 오류가 발생했습니다.");
-            });
+            .catch(error => console.error("🚨 저장 오류:", error));
         }
-
     </script>
 
 </body>
