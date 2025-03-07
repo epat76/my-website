@@ -9,16 +9,26 @@
             font-family: Arial, sans-serif;
             text-align: center;
             padding: 20px;
-            position: relative;
             background-color: #f9f9f3;
         }
         .login-container {
-            max-width: 400px;
+            max-width: 350px;
             margin: 50px auto;
             padding: 20px;
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .login-container input {
+            width: 80%;
+            padding: 10px;
+            margin-top: 10px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
         .container {
             display: none;
@@ -54,7 +64,8 @@
         }
         .info h3 {
             margin: 5px 0;
-            font-size: 1.3em;
+            font-size: 1.5em;
+            font-weight: bold;
             color: #333;
         }
         .info p {
@@ -64,6 +75,11 @@
             text-overflow: ellipsis;
             font-size: 0.9em;
             color: #555;
+        }
+        .bold-text {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #222;
         }
         .edit-button {
             position: absolute;
@@ -86,31 +102,7 @@
             right: 20px;
             cursor: pointer;
             font-size: 24px;
-            background-color: #007bff;
-            color: white;
-            padding: 10px;
-            border-radius: 50%;
-        }
-        .form-container {
-            display: none;
-            max-width: 400px;
-            margin: auto;
-            padding: 20px;
-            background: #f5f5f5;
-            border-radius: 10px;
-        }
-        input, button {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
+            color: #007bff;
         }
     </style>
 </head>
@@ -127,27 +119,11 @@
     <!-- 수정 모드 토글 아이콘 -->
     <div class="edit-toggle" onclick="toggleEditMode()">⚙️</div>
 
-    <!-- 회원 정보 수정 폼 -->
-    <div id="editForm" class="form-container">
-        <h2>회원 정보 수정</h2>
-        <input type="text" id="editName" placeholder="이름">
-        <input type="text" id="editCompany" placeholder="회사">
-        <input type="text" id="editPosition" placeholder="직책">
-        <input type="text" id="editOfficeAddress" placeholder="회사 주소">
-        <input type="text" id="editHomeAddress" placeholder="집 주소">
-        <input type="text" id="editContact" placeholder="연락처" disabled>
-        <input type="email" id="editEmail" placeholder="이메일">
-        <input type="file" id="editPhoto" accept="image/*">
-        <button onclick="saveChanges()">저장</button>
-        <p id="statusMessage"></p>
-    </div>
-
     <!-- 회원 목록 -->
     <div id="members" class="container"></div>
 
     <script>
         let apiUrl = "https://script.google.com/macros/s/AKfycbwbLFVumKun9Nu6_RbESoH6MXvTwAPBoBVAZ94p1ihYfu-3Zh1Q48lUYMfcHLUiUrFt/exec"; // 회원 인증 및 목록 가져오기
-        let apiUrlUpdate = "https://script.google.com/macros/s/AKfycbzPFzlALhGyykS3CKknWjd2UQLutPafvrbXEQk9_6DA1BWebea6WrW-cl-DmDLAA_Rd/exec"; // 회원 정보 수정 API
         let editMode = false;
 
         function toggleEditMode() {
@@ -192,12 +168,12 @@
                     </div>
                     <div class="info">
                         <h3>${member.name || "이름 없음"}</h3>
-                        <p>${member.company && member.position ? `${member.company} | ${member.position}` : "정보 없음"}</p>
-                        <p>🏢 ${member.officeAddress || "회사 주소 없음"} | 🏠 ${member.homeAddress || "집 주소 없음"}</p>
-                        <p>📞 ${member.contact || "연락처 없음"}</p>
-                        <p>📧 ${member.email || "이메일 없음"}</p>
+                        <p class="bold-text">${member.company && member.position ? `${member.company} | ${member.position}` : "정보 없음"}</p>
+                        <p class="bold-text">📞 ${member.contact || "연락처 없음"}</p>
+                        <p>🏢 ${member.officeAddress || "회사 주소 없음"}</p>
+                        <p>🏠 ${member.homeAddress || "집 주소 없음"}</p>
                     </div>
-                    <button class="edit-button" onclick="editMember('${member.name}', '${member.company}', '${member.position}', '${member.officeAddress}', '${member.homeAddress}', '${member.contact}', '${member.email}', '${photoUrl}')">수정</button>
+                    <button class="edit-button">수정</button>
                 `;
                 container.appendChild(card);
             });
