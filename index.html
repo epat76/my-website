@@ -213,6 +213,44 @@
                 location.reload(); // 수정 후 새로고침
             }).catch(error => console.error("수정 오류:", error));
         }
+   
+        function saveChanges() {
+    let contact = document.getElementById('editContact').value;
+    let company = document.getElementById('editCompany').value;
+    let position = document.getElementById('editPosition').value;
+    let officeAddress = document.getElementById('editOfficeAddress').value;
+    let homeAddress = document.getElementById('editHomeAddress').value;
+    let email = document.getElementById('editEmail').value;
+
+    let updatedData = {
+        contact: contact,
+        company: company,
+        position: position,
+        officeAddress: officeAddress,
+        homeAddress: homeAddress,
+        email: email
+    };
+
+    console.log("🔹 수정 요청 데이터:", updatedData);
+
+    fetch(apiUrlUpdate, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("🔹 응답 데이터:", data);
+        if (data.status === "success") {
+            alert("✅ 회원 정보가 수정되었습니다.");
+            location.reload(); // 수정 후 새로고침
+        } else {
+            alert("⚠️ 오류 발생: " + data.message);
+        }
+    })
+    .catch(error => console.error("🚨 저장 오류:", error));
+}
+
     </script>
 
 </body>
