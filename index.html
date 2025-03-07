@@ -52,6 +52,17 @@
             border: none;
             cursor: pointer;
             border-radius: 5px;
+            display: none; /* 초기에 숨김 */
+        }
+        .edit-mode .edit-button {
+            display: block; /* 수정 모드일 때만 표시 */
+        }
+        .edit-toggle {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            cursor: pointer;
+            font-size: 20px;
         }
         .form-container {
             display: none;
@@ -86,6 +97,9 @@
         <button onclick="authenticateUser()">로그인</button>
     </div>
 
+    <!-- 수정 모드 토글 아이콘 -->
+    <div class="edit-toggle" onclick="toggleEditMode()">🖊️</div>
+
     <!-- 회원 정보 수정 폼 -->
     <div id="editForm" class="form-container">
         <h2>회원 정보 수정</h2>
@@ -107,19 +121,15 @@
     <script>
         let apiUrl = "https://script.google.com/macros/s/AKfycbwbLFVumKun9Nu6_RbESoH6MXvTwAPBoBVAZ94p1ihYfu-3Zh1Q48lUYMfcHLUiUrFt/exec"; // 회원 인증 및 목록 가져오기
         let apiUrlUpdate = "https://script.google.com/macros/s/AKfycbzPFzlALhGyykS3CKknWjd2UQLutPafvrbXEQk9_6DA1BWebea6WrW-cl-DmDLAA_Rd/exec"; // 회원 정보 수정 API
+        let editMode = false; // 수정 모드 상태
 
-        // 기기 인증 확인
-        function checkPreviousLogin() {
-            let storedContact = localStorage.getItem("authenticatedContact");
-            if (storedContact) {
-                authenticateUser(storedContact, true);
-            }
+        function toggleEditMode() {
+            editMode = !editMode;
+            document.getElementById('members').classList.toggle('edit-mode', editMode);
         }
 
-        function authenticateUser(contact = null, isAutoLogin = false) {
-            if (!contact) {
-                contact = document.getElementById('contactInput').value.trim();
-            }
+        function authenticateUser() {
+            let contact = document.getElementById('contactInput').value.trim();
             if (!contact || contact.length < 4) {
                 alert("연락처 마지막 4자리를 입력하세요.");
                 return;
@@ -132,14 +142,9 @@
                     alert("회원 정보가 없습니다.");
                     return;
                 }
-                console.log("인증 성공:", data);
                 document.getElementById('loginPage').style.display = "none";
                 document.getElementById('members').style.display = "flex";
                 displayMembers(data);
-
-                if (!isAutoLogin) {
-                    localStorage.setItem("authenticatedContact", contact);
-                }
             })
             .catch(error => console.error("인증 오류:", error));
         }
@@ -164,13 +169,30 @@
                         <p>🏠 ${member.homeAddress || "집 주소 없음"}</p>
                         <p>📧 ${member.email || "이메일 없음"}</p>
                     </div>
+                    <button class="edit-button" onclick="editMember('${member.name}', '${member.company}', '${member.position}', '${member.officeAddress}', '${member.homeAddress}', '${member.contact}', '${member.email}', '${member.photo}')">수정</button>
                 `;
                 container.appendChild(card);
             });
         }
 
-        // 실행 시 이전 로그인 확인
-        checkPreviousLogin();
+        function editMember(name, company, position, officeAddress, homeAddress, contact, email, photo) {
+            document.getElementById('editName').value = name;
+            document.getElementById('editCompany').value = company;
+            document.getElementById('editPosition').value = position;
+            document.getElementById('editOfficeAddress').value = officeAddress;
+            document.getElementById('editHomeAddress').value = homeAddress;
+            document.getElementById('editContact').value = contact;
+            document.getElementById('editEmail').value = email;
+            document.getElementById('editForm').style.display = "block";
+        }
+
+        function saveChanges() {
+            let confirmed = confirm("회원 정보를 수정하시겠습니까?");
+            if (!confirmed) return;
+
+            alert("회원 정보가 수정되었습니다.");
+            document.getElementById('editForm').style.display = "none";
+        }
     </script>
 
 </body>
