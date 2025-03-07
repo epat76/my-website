@@ -21,8 +21,9 @@
         }
         input {
             padding: 8px;
-            width: 250px;
+            width: 150px;
             margin: 10px 0;
+            text-align: center;
         }
         button {
             padding: 8px 12px;
@@ -39,9 +40,8 @@
         }
         .card {
             background: white;
-            width: 90%; /* 기본적으로 화면 너비의 90% */
-            max-width: 450px; /* 최대 너비 450px */
-            height: auto; /* 높이 자동 조절 */
+            width: 400px; /* 4:3 비율 적용 */
+            height: 300px;
             display: flex;
             align-items: center;
             margin: 10px;
@@ -53,8 +53,8 @@
         }
         .photo-container {
             flex: 1;
-            max-width: 40%; /* 이미지 크기를 자동 조절 */
-            height: auto;
+            max-width: 40%;
+            height: 100%;
             border: 1px solid #ccc;
             display: flex;
             justify-content: center;
@@ -63,7 +63,7 @@
         }
         .photo-container img {
             width: 100%;
-            height: auto;
+            height: 100%;
             object-fit: cover;
             border-radius: 5px;
         }
@@ -74,19 +74,18 @@
         }
         .info h3 {
             margin: 0;
-            font-size: 1.2em; /* 기본 글자 크기 */
+            font-size: 1.2em;
             color: #333;
         }
         .info p {
             font-size: 0.9em;
             color: #555;
             margin: 5px 0;
-            white-space: nowrap; /* 한 줄 유지 */
+            white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis; /* 너무 길면 ... 처리 */
+            text-overflow: ellipsis;
         }
 
-        /* 🔹 반응형 디자인 - 작은 화면에서 크기 자동 조정 */
         @media screen and (max-width: 600px) {
             .card {
                 flex-direction: column;
@@ -114,17 +113,17 @@
     <!-- 로그인 화면 -->
     <div id="loginPage" class="login-container">
         <h2>회원 인증</h2>
-        <p>등록된 연락처를 입력하세요.</p>
-        <input type="text" id="contactInput" placeholder="예: 01012345678">
+        <p>연락처의 마지막 4자리 입력</p>
+        <input type="text" id="contactInput" placeholder="예: 5678" maxlength="4">
         <button onclick="authenticateUser()">로그인</button>
     </div>
 
-    <!-- 회원 목록 페이지 (초기에는 숨김) -->
+    <!-- 회원 목록 페이지 -->
     <div id="members" class="container"></div>
 
     <script>
         let membersData = [];
-        let apiUrl = "https://script.google.com/macros/s/AKfycbwbLFVumKun9Nu6_RbESoH6MXvTwAPBoBVAZ94p1ihYfu-3Zh1Q48lUYMfcHLUiUrFt/exec"; // Google Apps Script URL
+        let apiUrl = "https://script.google.com/macros/s/AKfycbwbLFVumKun9Nu6_RbESoH6MXvTwAPBoBVAZ94p1ihYfu-3Zh1Q48lUYMfcHLUiUrFt/exec"; // Google Apps Script 배포 URL
 
         function checkAuthentication() {
             let storedContact = localStorage.getItem("authenticatedContact");
@@ -139,17 +138,17 @@
             }
 
             if (!contact) {
-                alert("연락처를 입력하세요.");
+                alert("마지막 4자리를 입력하세요.");
                 return;
             }
 
             fetch(apiUrl + "?contact=" + encodeURIComponent(contact))
-            .then(response => response.text())
+            .then(response => response.json())
             .then(data => {
-                if (data === "Unauthorized") {
-                    alert("인증 실패! 등록된 연락처가 아닙니다.");
+                if (data.error) {
+                    alert("인증 실패! 등록된 번호가 아닙니다.");
                 } else {
-                    membersData = JSON.parse(data);
+                    membersData = data;
                     document.getElementById('loginPage').style.display = "none";
                     document.getElementById('members').style.display = "flex";
                     displayMembers(membersData);
@@ -171,12 +170,7 @@
                 card.classList.add('card');
 
                 let photoUrl = member.photo ? member.photo : "default-profile.png";
-
-                let companyInfo = member.company ? `<p><strong>${member.position}</strong> @ ${member.company}</p>` : "";
-                let officeAddress = member.officeAddress ? `<p>📍 ${member.officeAddress}</p>` : "";
-                let homeAddress = member.homeAddress ? `<p>🏠 ${member.homeAddress}</p>` : "";
-                let contact = member.contact ? `<p>📞 ${member.contact}</p>` : "";
-                let email = member.email ? `<p>📧 ${member.email}</p>` : "";
+                let companyInfo = member.company && member.position ? `<p>${member.company} | ${member.position}</p>` : "";
 
                 card.innerHTML = `
                     <div class="photo-container">
@@ -185,10 +179,6 @@
                     <div class="info">
                         <h3>${member.name}</h3>
                         ${companyInfo}
-                        ${officeAddress}
-                        ${homeAddress}
-                        ${contact}
-                        ${email}
                     </div>
                 `;
                 container.appendChild(card);
