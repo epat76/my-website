@@ -120,12 +120,13 @@
                 if (data.error) {
                     alert("회원 정보가 없습니다.");
                 } else {
+                    console.log("인증 성공:", data); // 디버깅용 로그
                     document.getElementById('loginPage').style.display = "none";
                     document.getElementById('members').style.display = "flex";
                     displayMembers([data]);
                 }
             })
-            .catch(error => console.log("인증 오류:", error));
+            .catch(error => console.error("인증 오류:", error));
         }
 
         function displayMembers(data) {
@@ -135,15 +136,17 @@
             data.forEach(member => {
                 let card = document.createElement('div');
                 card.classList.add('card');
+                let companyPosition = member.company && member.position ? `${member.company} | ${member.position}` : "정보 없음";
+
                 card.innerHTML = `
                     <div class="photo-container">
                         <img src="${member.photo || 'default-profile.png'}" alt="회원 사진">
                     </div>
                     <div>
-                        <h3>${member.name}</h3>
-                        <p>${member.company} | ${member.position}</p>
-                        <p>📍 ${member.officeAddress}</p>
-                        <p>🏠 ${member.homeAddress}</p>
+                        <h3>${member.name || "이름 없음"}</h3>
+                        <p>${companyPosition}</p>
+                        <p>📍 ${member.officeAddress || "회사 주소 없음"}</p>
+                        <p>🏠 ${member.homeAddress || "집 주소 없음"}</p>
                     </div>
                     <button class="edit-button" onclick="editMember('${member.name}', '${member.company}', '${member.position}', '${member.officeAddress}', '${member.homeAddress}', '${member.contact}', '${member.photo}')">수정</button>
                 `;
