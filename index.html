@@ -25,7 +25,7 @@
         }
         .card {
             background: white;
-            width: 500px; 
+            width: 500px;
             height: 300px;
             display: flex;
             align-items: center;
@@ -34,94 +34,59 @@
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: left;
-        }
-        .photo-container {
-            flex: 1;
-            min-width: 40%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #eee;
-            border-radius: 5px;
+            position: relative;
         }
         .photo-container img {
-            width: auto;
-            height: 100%;
-            max-width: 100%;
+            width: 100px;
+            height: 100px;
             object-fit: cover;
+            border-radius: 50%;
+        }
+        .edit-button {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
             border-radius: 5px;
-        }
-        .info {
-            flex-grow: 2;
-            padding-left: 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .info h3 {
-            margin: 0;
-            font-size: 1.2em;
-            color: #333;
-        }
-        .info p {
-            font-size: 0.9em;
-            color: #555;
-            margin: 3px 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
     </style>
 </head>
 <body>
 
-    <!-- 로그인 화면 -->
     <div id="loginPage" class="login-container">
         <h1>형제회</h1>
         <h2>회원 인증</h2>
-        <p>연락처의 마지막 4자리 입력</p>
-        <input type="text" id="contactInput" placeholder="예: 5678" maxlength="4">
+        <input type="text" id="contactInput" placeholder="연락처 마지막 4자리">
         <button onclick="authenticateUser()">로그인</button>
     </div>
 
-    <!-- 회원 추가 폼 -->
-    <div id="addMemberForm" class="login-container" style="display: none;">
-        <h2>회원 추가</h2>
-        <input type="text" id="name" placeholder="이름" required>
-        <input type="text" id="company" placeholder="회사">
-        <input type="text" id="position" placeholder="직책">
-        <input type="text" id="officeAddress" placeholder="회사 주소">
-        <input type="text" id="homeAddress" placeholder="집 주소">
-        <input type="text" id="contact" placeholder="연락처" required>
-        <input type="email" id="email" placeholder="이메일">
-        <label>사진 업로드:</label>
-        <input type="file" id="photo" accept="image/*">
-        <button onclick="addMember()">회원 추가</button>
+    <div id="editForm" class="login-container" style="display: none;">
+        <h2>회원 정보 수정</h2>
+        <input type="text" id="editName" placeholder="이름">
+        <input type="text" id="editCompany" placeholder="회사">
+        <input type="text" id="editPosition" placeholder="직책">
+        <input type="text" id="editOfficeAddress" placeholder="회사 주소">
+        <input type="text" id="editHomeAddress" placeholder="집 주소">
+        <input type="text" id="editContact" placeholder="연락처" disabled>
+        <input type="file" id="editPhoto" accept="image/*">
+        <button onclick="saveChanges()">저장</button>
         <p id="statusMessage"></p>
     </div>
 
-    <!-- 회원 목록 -->
     <div id="members" class="container"></div>
 
     <script>
-        let apiUrl = "https://script.google.com/macros/s/AKfycbwbLFVumKun9Nu6_RbESoH6MXvTwAPBoBVAZ94p1ihYfu-3Zh1Q48lUYMfcHLUiUrFt/exec"; // 회원 인증 및 목록 가져오기
-        let apiUrlAddMember = "https://script.google.com/macros/s/AKfycbzPFzlALhGyykS3CKknWjd2UQLutPafvrbXEQk9_6DA1BWebea6WrW-cl-DmDLAA_Rd/exec"; // 회원 추가 및 사진 업로드
+        let apiUrl = "https://script.google.com/macros/s/AKfycbwbLFVumKun9Nu6_RbESoH6MXvTwAPBoBVAZ94p1ihYfu-3Zh1Q48lUYMfcHLUiUrFt/exec"; // 회원 목록 가져오기
+        let apiUrlUpdate = "https://script.google.com/macros/s/AKfycbzPFzlALhGyykS3CKknWjd2UQLutPafvrbXEQk9_6DA1BWebea6WrW-cl-DmDLAA_Rd/exec"; // 회원 정보 수정
 
-        function checkAuthentication() {
-            let storedContact = localStorage.getItem("authenticatedContact");
-            if (storedContact) {
-                authenticateUser(storedContact, true);
-            }
-        }
-
-        function authenticateUser(contact = null, isAutoLogin = false) {
+        function authenticateUser() {
+            let contact = document.getElementById('contactInput').value.trim();
             if (!contact) {
-                contact = document.getElementById('contactInput').value.trim();
-            }
-
-            if (!contact) {
-                alert("마지막 4자리를 입력하세요.");
+                alert("연락처 마지막 4자리를 입력하세요.");
                 return;
             }
 
@@ -129,19 +94,13 @@
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
-                    alert("인증 실패! 등록된 번호가 아닙니다.");
+                    alert("회원 정보가 없습니다.");
                 } else {
-                    membersData = data;
                     document.getElementById('loginPage').style.display = "none";
-                    document.getElementById('addMemberForm').style.display = "block";
                     document.getElementById('members').style.display = "flex";
-                    displayMembers(membersData);
-                    if (!isAutoLogin) {
-                        localStorage.setItem("authenticatedContact", contact);
-                    }
+                    displayMembers([data]);
                 }
-            })
-            .catch(error => console.log("인증 오류:", error));
+            });
         }
 
         function displayMembers(data) {
@@ -151,69 +110,27 @@
             data.forEach(member => {
                 let card = document.createElement('div');
                 card.classList.add('card');
-
-                let photoUrl = member.photo ? member.photo : "default-profile.png";
-                let companyInfo = member.company && member.position ? `<p>${member.company} | ${member.position}</p>` : "";
-                let officeAddress = member.officeAddress ? `<p>📍 회사: ${member.officeAddress}</p>` : "";
-                let homeAddress = member.homeAddress ? `<p>🏠 집: ${member.homeAddress}</p>` : "";
-                let contact = member.contact ? `<p>📞 연락처: ${member.contact}</p>` : "";
-
                 card.innerHTML = `
                     <div class="photo-container">
-                        <img src="${photoUrl}" alt="회원 사진" onerror="this.onerror=null; this.src='default-profile.png';">
+                        <img src="${member.photo || 'default-profile.png'}" alt="회원 사진">
                     </div>
-                    <div class="info">
+                    <div>
                         <h3>${member.name}</h3>
-                        ${companyInfo}
-                        ${officeAddress}
-                        ${homeAddress}
-                        ${contact}
+                        <p>${member.company} | ${member.position}</p>
                     </div>
+                    <button class="edit-button" onclick="editMember('${member.name}', '${member.company}', '${member.position}', '${member.contact}')">수정</button>
                 `;
                 container.appendChild(card);
             });
         }
 
-        function addMember() {
-            let name = document.getElementById("name").value.trim();
-            let contact = document.getElementById("contact").value.trim();
-            let photoFile = document.getElementById("photo").files[0];
-
-            if (!name || !contact) {
-                document.getElementById("statusMessage").innerText = "이름과 연락처는 필수 입력 사항입니다.";
-                return;
-            }
-
-            let reader = new FileReader();
-            if (photoFile) {
-                reader.readAsDataURL(photoFile);
-                reader.onload = function () {
-                    let base64Photo = reader.result.split(",")[1];
-                    sendData(name, contact, base64Photo);
-                };
-            } else {
-                sendData(name, contact, null);
-            }
+        function editMember(name, company, position, contact) {
+            document.getElementById('editName').value = name;
+            document.getElementById('editCompany').value = company;
+            document.getElementById('editPosition').value = position;
+            document.getElementById('editContact').value = contact;
+            document.getElementById('editForm').style.display = "block";
         }
-
-        function sendData(name, contact, photo) {
-            let memberData = { name: name, contact: contact, photo: photo };
-
-            fetch(apiUrlAddMember, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(memberData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("statusMessage").innerText = data.message;
-            })
-            .catch(error => {
-                document.getElementById("statusMessage").innerText = "오류 발생: " + error.message;
-            });
-        }
-
-        checkAuthentication();
     </script>
 
 </body>
