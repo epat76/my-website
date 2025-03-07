@@ -20,13 +20,13 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         .login-title {
-            font-size: 1.8em; /* 형제회 크기 */
+            font-size: 1.8em;
             font-weight: bold;
             margin: 0;
             color: #333;
         }
         .login-subtitle {
-            font-size: 1.2em; /* 회원 인증 크기 */
+            font-size: 1.2em;
             margin: 5px 0 20px 0;
             color: #555;
         }
@@ -51,10 +51,11 @@
         }
         .card {
             background: white;
-            width: 500px; /* 5:3 비율 적용 */
+            width: 500px; /* 5:3 비율 유지 */
             height: 300px;
             display: flex;
             align-items: center;
+            justify-content: space-between;
             margin: 10px;
             padding: 15px;
             border-radius: 10px;
@@ -64,24 +65,24 @@
         }
         .photo-container {
             flex: 1;
-            max-width: 40%;
+            min-width: 40%; /* 사진 비율 조정 */
             height: 100%;
-            border: 1px solid #ccc;
             display: flex;
             justify-content: center;
             align-items: center;
             background-color: #eee;
+            border-radius: 5px;
         }
         .photo-container img {
-            width: 100%;
+            width: auto;
             height: 100%;
+            max-width: 100%;
             object-fit: cover;
             border-radius: 5px;
         }
         .info {
-            flex-grow: 1;
+            flex-grow: 2;
             padding-left: 15px;
-            min-width: 60%;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -95,12 +96,12 @@
             font-size: 0.9em;
             color: #555;
             margin: 3px 0;
-            white-space: nowrap; /* 한 줄 유지 */
+            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        /* 🔹 반응형 디자인 - 화면 크기에 따라 자동 조절 */
+        /* 🔹 반응형 디자인: 화면 크기에 맞게 사진과 텍스트 자동 조정 */
         @media screen and (max-width: 600px) {
             .card {
                 flex-direction: column;
@@ -109,6 +110,10 @@
             }
             .photo-container {
                 max-width: 100%;
+                height: auto;
+            }
+            .photo-container img {
+                width: 100%;
                 height: auto;
             }
             .info {
