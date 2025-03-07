@@ -40,7 +40,7 @@
         }
         .card {
             background: white;
-            width: 400px; /* 4:3 비율 적용 */
+            width: 500px; /* 5:3 비율 적용 */
             height: 300px;
             display: flex;
             align-items: center;
@@ -71,6 +71,9 @@
             flex-grow: 1;
             padding-left: 15px;
             min-width: 60%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         .info h3 {
             margin: 0;
@@ -80,16 +83,18 @@
         .info p {
             font-size: 0.9em;
             color: #555;
-            margin: 5px 0;
-            white-space: nowrap;
+            margin: 3px 0;
+            white-space: nowrap; /* 한 줄 유지 */
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
+        /* 🔹 반응형 디자인 - 화면 크기에 따라 자동 조절 */
         @media screen and (max-width: 600px) {
             .card {
                 flex-direction: column;
                 max-width: 90%;
+                height: auto;
             }
             .photo-container {
                 max-width: 100%;
@@ -171,6 +176,9 @@
 
                 let photoUrl = member.photo ? member.photo : "default-profile.png";
                 let companyInfo = member.company && member.position ? `<p>${member.company} | ${member.position}</p>` : "";
+                let officeAddress = member.officeAddress ? `<p>📍 회사: ${member.officeAddress}</p>` : "";
+                let homeAddress = member.homeAddress ? `<p>🏠 집: ${member.homeAddress}</p>` : "";
+                let contact = member.contact ? `<p>📞 연락처: ${member.contact}</p>` : "";
 
                 card.innerHTML = `
                     <div class="photo-container">
@@ -179,6 +187,9 @@
                     <div class="info">
                         <h3>${member.name}</h3>
                         ${companyInfo}
+                        ${officeAddress}
+                        ${homeAddress}
+                        ${contact}
                     </div>
                 `;
                 container.appendChild(card);
