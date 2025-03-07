@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>회원 수첩</title>
+    <title>회원 수첩 로그인</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,13 +11,18 @@
             text-align: center;
             padding: 20px;
         }
-        .controls {
-            margin-bottom: 15px;
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         input {
             padding: 8px;
             width: 250px;
-            margin-right: 10px;
+            margin: 10px 0;
         }
         button {
             padding: 8px 12px;
@@ -28,7 +33,7 @@
             border-radius: 5px;
         }
         .container {
-            display: flex;
+            display: none;
             flex-wrap: wrap;
             justify-content: center;
         }
@@ -75,29 +80,43 @@
 </head>
 <body>
 
-    <div class="controls">
-        <input type="text" id="searchInput" placeholder="검색어 입력 (이름, 회사명 등)">
-        <button onclick="searchMembers()">검색</button>
-        <button onclick="sortMembers('name')">이름 정렬</button>
-        <button onclick="sortMembers('company')">회사명 정렬</button>
+    <!-- 로그인 화면 -->
+    <div id="loginPage" class="login-container">
+        <h2>회원 인증</h2>
+        <p>등록된 연락처를 입력하세요.</p>
+        <input type="text" id="contactInput" placeholder="예: 01012345678">
+        <button onclick="authenticateUser()">로그인</button>
     </div>
 
+    <!-- 회원 목록 페이지 (초기에는 숨김) -->
     <div id="members" class="container"></div>
 
     <script>
         let membersData = [];
-        let ascendingOrder = true;
+        let apiUrl = "https://script.google.com/macros/s/AKfycbwbLFVumKun9Nu6_RbESoH6MXvTwAPBoBVAZ94p1ihYfu-3Zh1Q48lUYMfcHLUiUrFt/exec"; // Google Apps Script URL
 
-        // Google Apps Script에서 JSON 데이터 가져오기
-        fetch('https://script.google.com/macros/s/AKfycbwbLFVumKun9Nu6_RbESoH6MXvTwAPBoBVAZ94p1ihYfu-3Zh1Q48lUYMfcHLUiUrFt/exec')
-        .then(response => response.json())
-        .then(data => {
-            membersData = data;
-            sortMembers('name', true); // 페이지 로드 시 자동으로 이름 순 정렬
-        })
-        .catch(error => console.log("데이터 로드 실패:", error));
+        function authenticateUser() {
+            let contact = document.getElementById('contactInput').value.trim();
+            if (!contact) {
+                alert("연락처를 입력하세요.");
+                return;
+            }
 
-        // 회원 정보 표시
+            fetch(apiUrl + "?contact=" + encodeURIComponent(contact))
+            .then(response => response.text())
+            .then(data => {
+                if (data === "Unauthorized") {
+                    alert("인증 실패! 등록된 연락처가 아닙니다.");
+                } else {
+                    membersData = JSON.parse(data);
+                    document.getElementById('loginPage').style.display = "none";
+                    document.getElementById('members').style.display = "flex";
+                    displayMembers(membersData);
+                }
+            })
+            .catch(error => console.log("인증 오류:", error));
+        }
+
         function displayMembers(data) {
             let container = document.getElementById('members');
             container.innerHTML = "";
@@ -106,10 +125,8 @@
                 let card = document.createElement('div');
                 card.classList.add('card');
 
-                // 사진이 없으면 기본 이미지 사용
                 let photoUrl = member.photo ? member.photo : "default-profile.png";
 
-                // 데이터가 있는 경우만 표시
                 let companyInfo = member.company ? `<p><strong>${member.position}</strong> @ ${member.company}</p>` : "";
                 let officeAddress = member.officeAddress ? `<p>📍 ${member.officeAddress}</p>` : "";
                 let homeAddress = member.homeAddress ? `<p>🏠 ${member.homeAddress}</p>` : "";
@@ -131,30 +148,6 @@
                 `;
                 container.appendChild(card);
             });
-        }
-
-        // 🔍 검색 기능
-        function searchMembers() {
-            let keyword = document.getElementById('searchInput').value.toLowerCase();
-            let filteredData = membersData.filter(member => 
-                member.name.toLowerCase().includes(keyword) ||
-                (member.company && member.company.toLowerCase().includes(keyword)) ||
-                (member.position && member.position.toLowerCase().includes(keyword))
-            );
-            displayMembers(filteredData);
-        }
-
-        // 🔀 정렬 기능 (초기 로드시 자동으로 성명 순 정렬)
-        function sortMembers(field, initialLoad = false) {
-            if (!initialLoad) ascendingOrder = !ascendingOrder; // 첫 실행 시에는 순서 변경 없음
-
-            membersData.sort((a, b) => {
-                if (a[field] < b[field]) return ascendingOrder ? -1 : 1;
-                if (a[field] > b[field]) return ascendingOrder ? 1 : -1;
-                return 0;
-            });
-
-            displayMembers(membersData);
         }
     </script>
 
