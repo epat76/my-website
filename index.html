@@ -19,21 +19,6 @@
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .login-container input {
-            width: 80%;
-            padding: 10px;
-            margin-top: 10px;
-            text-align: center;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .login-container button {
-            margin-top: 10px;
-            padding: 10px;
-        }
         .container {
             display: none;
             flex-wrap: wrap;
@@ -100,6 +85,10 @@
             border: none;
             cursor: pointer;
             border-radius: 5px;
+            display: none;
+        }
+        .edit-mode .edit-button {
+            display: block;
         }
         .edit-toggle {
             position: fixed;
@@ -120,7 +109,7 @@
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             width: 350px;
-            height: 480px; /* 높이 조정 */
+            height: 480px;
             overflow-y: auto;
         }
         .popup input {
@@ -161,7 +150,7 @@
     <!-- 수정 팝업 -->
     <div id="editPopup" class="popup">
         <h2>회원 정보 수정</h2>
-        <input type="text" id="editName" placeholder="이름">
+        <input type="text" id="editName" placeholder="이름" disabled>
         <input type="text" id="editCompany" placeholder="회사">
         <input type="text" id="editPosition" placeholder="직책">
         <input type="text" id="editOfficeAddress" placeholder="회사 주소">
@@ -178,7 +167,9 @@
 
         function toggleEditMode() {
             editMode = !editMode;
-            document.getElementById('members').classList.toggle('edit-mode', editMode);
+            document.querySelectorAll('.edit-button').forEach(button => {
+                button.style.display = editMode ? 'block' : 'none';
+            });
         }
 
         function authenticateUser() {
