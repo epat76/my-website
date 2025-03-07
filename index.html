@@ -19,6 +19,17 @@
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+        .login-title {
+            font-size: 1.8em; /* 형제회 크기 */
+            font-weight: bold;
+            margin: 0;
+            color: #333;
+        }
+        .login-subtitle {
+            font-size: 1.2em; /* 회원 인증 크기 */
+            margin: 5px 0 20px 0;
+            color: #555;
+        }
         input {
             padding: 8px;
             width: 150px;
@@ -117,7 +128,8 @@
 
     <!-- 로그인 화면 -->
     <div id="loginPage" class="login-container">
-        <h2>회원 인증</h2>
+        <h1 class="login-title">형제회</h1>
+        <h2 class="login-subtitle">회원 인증</h2>
         <p>연락처의 마지막 4자리 입력</p>
         <input type="text" id="contactInput" placeholder="예: 5678" maxlength="4">
         <button onclick="authenticateUser()">로그인</button>
