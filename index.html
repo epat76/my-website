@@ -39,18 +39,19 @@
         }
         .card {
             background: white;
-            width: 600px;
+            width: 450px; /* 3:2 비율 유지 (450px : 300px) */
+            height: 300px;
             display: flex;
             align-items: center;
             margin: 15px;
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: left;
         }
         .photo-container {
-            width: 150px;
-            height: 200px;
+            width: 40%; /* 이미지 비율 조정 */
+            height: 100%;
             border: 1px solid #ccc;
             display: flex;
             justify-content: center;
@@ -64,7 +65,7 @@
         }
         .info {
             flex-grow: 1;
-            padding-left: 20px;
+            padding-left: 15px;
         }
         .info h3 {
             margin: 0;
@@ -93,10 +94,21 @@
 
     <script>
         let membersData = [];
-        let apiUrl = "https://script.google.com/macros/s/AKfycbwbLFVumKun9Nu6_RbESoH6MXvTwAPBoBVAZ94p1ihYfu-3Zh1Q48lUYMfcHLUiUrFt/exec"; // Google Apps Script URL
+        let apiUrl = "YOUR_SCRIPT_DEPLOY_URL"; // Google Apps Script URL
 
-        function authenticateUser() {
-            let contact = document.getElementById('contactInput').value.trim();
+        // 인증 유지 여부 확인 (localStorage 사용)
+        function checkAuthentication() {
+            let storedContact = localStorage.getItem("authenticatedContact");
+            if (storedContact) {
+                authenticateUser(storedContact, true); // 저장된 연락처로 자동 인증
+            }
+        }
+
+        function authenticateUser(contact = null, isAutoLogin = false) {
+            if (!contact) {
+                contact = document.getElementById('contactInput').value.trim();
+            }
+
             if (!contact) {
                 alert("연락처를 입력하세요.");
                 return;
@@ -112,6 +124,10 @@
                     document.getElementById('loginPage').style.display = "none";
                     document.getElementById('members').style.display = "flex";
                     displayMembers(membersData);
+
+                    if (!isAutoLogin) {
+                        localStorage.setItem("authenticatedContact", contact); // 인증된 연락처 저장 (7일 유지 가능)
+                    }
                 }
             })
             .catch(error => console.log("인증 오류:", error));
@@ -149,6 +165,9 @@
                 container.appendChild(card);
             });
         }
+
+        // 페이지 로드 시 자동 인증 확인
+        checkAuthentication();
     </script>
 
 </body>
