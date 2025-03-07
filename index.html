@@ -108,8 +108,18 @@
         let apiUrl = "https://script.google.com/macros/s/AKfycbwbLFVumKun9Nu6_RbESoH6MXvTwAPBoBVAZ94p1ihYfu-3Zh1Q48lUYMfcHLUiUrFt/exec"; // 회원 인증 및 목록 가져오기
         let apiUrlUpdate = "https://script.google.com/macros/s/AKfycbzPFzlALhGyykS3CKknWjd2UQLutPafvrbXEQk9_6DA1BWebea6WrW-cl-DmDLAA_Rd/exec"; // 회원 정보 수정 API
 
-        function authenticateUser() {
-            let contact = document.getElementById('contactInput').value.trim();
+        // 기기 인증 확인
+        function checkPreviousLogin() {
+            let storedContact = localStorage.getItem("authenticatedContact");
+            if (storedContact) {
+                authenticateUser(storedContact, true);
+            }
+        }
+
+        function authenticateUser(contact = null, isAutoLogin = false) {
+            if (!contact) {
+                contact = document.getElementById('contactInput').value.trim();
+            }
             if (!contact || contact.length < 4) {
                 alert("연락처 마지막 4자리를 입력하세요.");
                 return;
@@ -126,6 +136,10 @@
                 document.getElementById('loginPage').style.display = "none";
                 document.getElementById('members').style.display = "flex";
                 displayMembers(data);
+
+                if (!isAutoLogin) {
+                    localStorage.setItem("authenticatedContact", contact);
+                }
             })
             .catch(error => console.error("인증 오류:", error));
         }
@@ -150,61 +164,13 @@
                         <p>🏠 ${member.homeAddress || "집 주소 없음"}</p>
                         <p>📧 ${member.email || "이메일 없음"}</p>
                     </div>
-                    <button class="edit-button" onclick="editMember('${member.name}', '${member.company}', '${member.position}', '${member.officeAddress}', '${member.homeAddress}', '${member.contact}', '${member.email}', '${member.photo}')">수정</button>
                 `;
                 container.appendChild(card);
             });
         }
 
-        function editMember(name, company, position, officeAddress, homeAddress, contact, email, photo) {
-            document.getElementById('editName').value = name;
-            document.getElementById('editCompany').value = company;
-            document.getElementById('editPosition').value = position;
-            document.getElementById('editOfficeAddress').value = officeAddress;
-            document.getElementById('editHomeAddress').value = homeAddress;
-            document.getElementById('editContact').value = contact;
-            document.getElementById('editEmail').value = email;
-            document.getElementById('editForm').style.display = "block";
-        }
-
-        function saveChanges() {
-            let memberData = {
-                name: document.getElementById("editName").value,
-                company: document.getElementById("editCompany").value,
-                position: document.getElementById("editPosition").value,
-                officeAddress: document.getElementById("editOfficeAddress").value,
-                homeAddress: document.getElementById("editHomeAddress").value,
-                contact: document.getElementById("editContact").value,
-                email: document.getElementById("editEmail").value,
-                photo: null
-            };
-
-            let photoFile = document.getElementById("editPhoto").files[0];
-            if (photoFile) {
-                let reader = new FileReader();
-                reader.readAsDataURL(photoFile);
-                reader.onload = function () {
-                    memberData.photo = reader.result.split(",")[1];
-                    sendUpdateRequest(memberData);
-                };
-            } else {
-                sendUpdateRequest(memberData);
-            }
-        }
-
-        function sendUpdateRequest(memberData) {
-            fetch(apiUrlUpdate, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(memberData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                location.reload();
-            })
-            .catch(error => console.log("업데이트 오류:", error));
-        }
+        // 실행 시 이전 로그인 확인
+        checkPreviousLogin();
     </script>
 
 </body>
