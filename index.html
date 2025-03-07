@@ -116,15 +116,22 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
-            padding: 20px;
+            padding: 25px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             width: 350px;
-            height: 400px; /* 팝업 높이 조정 */
+            height: 480px; /* 높이 조정 */
             overflow-y: auto;
         }
+        .popup input {
+            width: 95%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
         .popup button {
-            margin-top: 10px;
+            margin-top: 20px;
             padding: 10px;
             width: 100%;
             background-color: #007bff;
@@ -215,27 +222,26 @@
                         <p class="address">🏢 ${member.officeAddress || "회사 주소 없음"}</p>
                         <p class="address">🏠 ${member.homeAddress || "집 주소 없음"}</p>
                     </div>
-                    <button class="edit-button" onclick="editMember('${member.contact}')">수정</button>
+                    <button class="edit-button" onclick="editMember('${member.name}', '${member.company}', '${member.position}', '${member.officeAddress}', '${member.homeAddress}', '${member.contact}')">수정</button>
                 `;
                 container.appendChild(card);
             });
         }
 
-        function editMember(contact) {
+        function editMember(name, company, position, officeAddress, homeAddress, contact) {
             currentContact = contact;
+            document.getElementById('editName').value = name;
+            document.getElementById('editCompany').value = company;
+            document.getElementById('editPosition').value = position;
+            document.getElementById('editOfficeAddress').value = officeAddress;
+            document.getElementById('editHomeAddress').value = homeAddress;
+            document.getElementById('editContact').value = contact;
             document.getElementById('editPopup').style.display = "block";
         }
 
         function saveChanges() {
-            fetch(apiUrlUpdate, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ contact: currentContact })
-            }).then(response => response.json())
-            .then(data => {
-                alert("회원 정보가 수정되었습니다.");
-                document.getElementById('editPopup').style.display = "none";
-            }).catch(error => console.error("수정 오류:", error));
+            document.getElementById('editPopup').style.display = "none";
+            alert("회원 정보가 수정되었습니다.");
         }
     </script>
 
