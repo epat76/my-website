@@ -10,6 +10,7 @@
             text-align: center;
             padding: 20px;
             position: relative;
+            background-color: #f9f9f3;
         }
         .login-container {
             max-width: 400px;
@@ -25,40 +26,44 @@
             justify-content: center;
         }
         .card {
-            background: white;
-            width: 500px;
-            height: 320px;
+            background: #fdfdf5;
+            width: 450px;
+            height: 250px;
             display: flex;
             align-items: center;
-            margin: 15px;
-            padding: 20px;
+            margin: 10px;
+            padding: 15px;
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             text-align: left;
             position: relative;
         }
         .photo-container {
-            flex: 0 0 120px;
-            margin-right: 20px;
+            flex: 0 0 100px;
+            margin-right: 15px;
         }
         .photo-container img {
-            width: 120px;
-            height: 120px;
+            width: 100px;
+            height: 100px;
             object-fit: cover;
             border-radius: 50%;
         }
         .info {
             flex-grow: 1;
+            font-size: 0.9em;
         }
         .info h3 {
-            margin: 0;
-            font-size: 1.4em;
+            margin: 5px 0;
+            font-size: 1.3em;
             color: #333;
         }
         .info p {
+            margin: 3px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             font-size: 0.9em;
             color: #555;
-            margin: 5px 0;
         }
         .edit-button {
             position: absolute;
@@ -120,7 +125,7 @@
     </div>
 
     <!-- 수정 모드 토글 아이콘 -->
-    <div class="edit-toggle" onclick="toggleEditMode()">🖊️</div>
+    <div class="edit-toggle" onclick="toggleEditMode()">⚙️</div>
 
     <!-- 회원 정보 수정 폼 -->
     <div id="editForm" class="form-container">
@@ -188,8 +193,7 @@
                     <div class="info">
                         <h3>${member.name || "이름 없음"}</h3>
                         <p>${member.company && member.position ? `${member.company} | ${member.position}` : "정보 없음"}</p>
-                        <p>🏢 ${member.officeAddress || "회사 주소 없음"}</p>
-                        <p>🏠 ${member.homeAddress || "집 주소 없음"}</p>
+                        <p>🏢 ${member.officeAddress || "회사 주소 없음"} | 🏠 ${member.homeAddress || "집 주소 없음"}</p>
                         <p>📞 ${member.contact || "연락처 없음"}</p>
                         <p>📧 ${member.email || "이메일 없음"}</p>
                     </div>
@@ -197,17 +201,6 @@
                 `;
                 container.appendChild(card);
             });
-        }
-
-        function editMember(name, company, position, officeAddress, homeAddress, contact, email, photo) {
-            document.getElementById('editName').value = name;
-            document.getElementById('editCompany').value = company;
-            document.getElementById('editPosition').value = position;
-            document.getElementById('editOfficeAddress').value = officeAddress;
-            document.getElementById('editHomeAddress').value = homeAddress;
-            document.getElementById('editContact').value = contact;
-            document.getElementById('editEmail').value = email;
-            document.getElementById('editForm').style.display = "block";
         }
     </script>
 
